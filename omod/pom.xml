@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>org.openmrs.module</groupId>
 		<artifactId>registrationapp</artifactId>
-		<version>1.3-SNAPSHOT</version>
+		<version>1.3-COUSANT</version>
 	</parent>
 
 	<artifactId>registrationapp-omod</artifactId>
@@ -46,6 +46,12 @@
             <type>gem</type>
             <scope>provided</scope>
         </dependency>
+
+		<dependency>
+			<groupId>org.openmrs.module</groupId>
+			<artifactId>extendedpatientrecord-api</artifactId>
+			<version>1.0-SNAPSHOT</version>
+		</dependency>
 
 	</dependencies>
 

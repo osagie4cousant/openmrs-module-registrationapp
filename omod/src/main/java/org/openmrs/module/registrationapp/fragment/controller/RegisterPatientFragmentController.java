@@ -47,6 +47,8 @@ import org.springframework.validation.Errors;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.openmrs.module.extendedpatientrecord.PatientExtended;
+import org.openmrs.module.extendedpatientrecord.api.PatientExtendedService;
 
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -147,6 +149,8 @@ public class RegisterPatientFragmentController {
         try {
             // if patientIdentifier is blank, the underlying registerPatient method should automatically generate one
             patient = registrationService.registerPatient(patient, null, patientIdentifier, sessionContext.getSessionLocation());
+            PatientExtended patientExtended = new PatientExtended();
+            patientExtended.setPatientId(patient.getId().toString());
         }
         catch (Exception ex) {
 

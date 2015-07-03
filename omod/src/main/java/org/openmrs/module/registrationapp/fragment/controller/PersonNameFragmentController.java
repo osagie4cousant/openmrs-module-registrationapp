@@ -23,6 +23,8 @@ import org.openmrs.ui.framework.SimpleObject;
 import org.openmrs.ui.framework.UiFrameworkException;
 import org.openmrs.ui.framework.annotation.SpringBean;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.openmrs.module.extendedpatientrecord.PatientExtended;
+import org.openmrs.module.extendedpatientrecord.api.PatientExtendedService;
 
 public class PersonNameFragmentController {
 
@@ -32,6 +34,7 @@ public class PersonNameFragmentController {
 			@RequestParam(value = "formFieldName", required = true) String formFieldName) {
 
 		List<String> names = new ArrayList<String>();
+
 
 		if ("givenName".equals(formFieldName)) {
 			names.addAll(service.findSimilarGivenNames(searchPhrase));

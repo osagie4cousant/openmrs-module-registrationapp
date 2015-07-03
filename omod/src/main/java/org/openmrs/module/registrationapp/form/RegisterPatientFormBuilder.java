@@ -52,6 +52,12 @@ public class RegisterPatientFormBuilder {
         formStructure.addSection(demographics);
 
 
+		Section hmoSection = new Section();
+		hmoSection.setId("HMO");
+		hmoSection.setLabel("registrationapp.patient.hmo.label");
+		formStructure.addSection(hmoSection);
+
+
 		ArrayNode sections = (ArrayNode) app.getConfig().get("sections");
 		for (JsonNode i : sections) {
 			ObjectNode config = (ObjectNode) i;
@@ -103,5 +109,5 @@ public class RegisterPatientFormBuilder {
 				}
 			}
 		}
-	}
+	}// resolvePersonAttributeFields
 }
