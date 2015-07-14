@@ -52,38 +52,58 @@ public class RegisterPatientFormBuilder {
         formStructure.addSection(demographics);
 
 
-		Section hmoSection = new Section();
-		hmoSection.setId("HMO");
-		hmoSection.setLabel("registrationapp.patient.hmo.label");
-		formStructure.addSection(hmoSection);
+
+		CustomSection customSection = new CustomSection();
+		Section hmoSection, nextOfKinSection;
+		try{
+			hmoSection = customSection.hMOSection();
 
 
-		ArrayNode sections = (ArrayNode) app.getConfig().get("sections");
-		for (JsonNode i : sections) {
-			ObjectNode config = (ObjectNode) i;
-			
-			ObjectMapper objectMapper = new ObjectMapper();
-			Section section = objectMapper.convertValue(config, Section.class);
-			
-			if (section.getQuestions() != null) {
-				for (Question question : section.getQuestions()) {
-					if (question.getFields() != null) {
-						for (Field field : question.getFields()) {
-							ObjectNode widget = field.getWidget();
-							String providerName = (String) widget.get("providerName").getTextValue();
-							String fragmentId = (String) widget.get("fragmentId").getTextValue();
-							FragmentRequest fragmentRequest = new FragmentRequest(providerName, fragmentId);
-							field.setFragmentRequest(fragmentRequest);
+
+			formStructure.addSection(hmoSection);
+		}catch(Exception ex){
+			log.error("Exception occurred: "+ex);
+		}
+
+		try {
+
+
+			ArrayNode sections = (ArrayNode) app.getConfig().get("sections");
+			for (JsonNode i : sections) {
+				ObjectNode config = (ObjectNode) i;
+
+				ObjectMapper objectMapper = new ObjectMapper();
+				Section section = objectMapper.convertValue(config, Section.class);
+
+				if (section.getQuestions() != null) {
+					for (Question question : section.getQuestions()) {
+						if (question.getFields() != null) {
+							for (Field field : question.getFields()) {
+								ObjectNode widget = field.getWidget();
+								String providerName = (String) widget.get("providerName").getTextValue();
+								String fragmentId = (String) widget.get("fragmentId").getTextValue();
+								FragmentRequest fragmentRequest = new FragmentRequest(providerName, fragmentId);
+								field.setFragmentRequest(fragmentRequest);
+							}
 						}
 					}
 				}
+				formStructure.addSection(section);
 			}
-			
-			formStructure.addSection(section);
+		}catch(NullPointerException nex){
+			log.error("Null pointer exception: "+nex);
+		}catch(Exception ex){
+			log.error("An exception occurred: "+ex);
 		}
 
+		/* aDD OTHER CUSTOM SECTIONS... */
+		nextOfKinSection = customSection.createNextOfKinSection();
+		formStructure.addSection(nextOfKinSection);
+
+
 		return formStructure;
-	}
+	}//RegisterPatientFormBuilder
+
 	
 	public static void resolvePersonAttributeFields(NavigableFormStructure form, Person person,
 	                                                Map<String, String[]> parameterMap) {
@@ -98,8 +118,7 @@ public class RegisterPatientFormBuilder {
 					String parameterValue = parameterValues[0];
                     if (parameterValue != null) {
                         if (StringUtils.equals(field.getType(), "personAttribute")) {
-                            PersonAttributeType personAttributeByUuid = Context.getPersonService()
-                                    .getPersonAttributeTypeByUuid(field.getUuid());
+                            PersonAttributeType personAttributeByUuid = Context.getPersonService().getPersonAttributeTypeByUuid(field.getUuid());
                             if (personAttributeByUuid != null) {
                                 PersonAttribute attribute = new PersonAttribute(personAttributeByUuid, parameterValue);
                                 person.addAttribute(attribute);

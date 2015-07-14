@@ -10,7 +10,7 @@
 	<artifactId>registrationapp-omod</artifactId>
 	<packaging>jar</packaging>
 	<name>Registration App Module OMOD</name>
-	<description>OMOD project for RegistrationApp</description>
+	<description>OMOD project for RegistrationApp: Cousant Customized</description>
 
     <!-- by default rubygems are installed in the target directory, which we don't want, because then they'd need to be reinstalled after every clean -->
     <properties>
@@ -50,8 +50,18 @@
 		<dependency>
 			<groupId>org.openmrs.module</groupId>
 			<artifactId>extendedpatientrecord-api</artifactId>
-			<version>1.0-SNAPSHOT</version>
+			<version>1.0.1-SNAPSHOT</version>
 		</dependency>
+
+
+		<dependency>
+			<groupId>org.openmrs.module</groupId>
+			<artifactId>managehmo-api</artifactId>
+			<version>1.0.1-SNAPSHOT</version>
+			<type>jar</type>
+			<scope>provided</scope>
+		</dependency>
+
 
 	</dependencies>
 

@@ -1,6 +1,5 @@
 <%
     def returnUrl = "/${contextPath}/registrationapp/registrationSummary.page?patientId=${patient.patient.id}"
-
 %>
 
 

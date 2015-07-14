@@ -10,11 +10,16 @@ import org.openmrs.module.appui.UiSessionContext;
 import org.openmrs.module.emrapi.EmrApiProperties;
 import org.openmrs.module.registrationapp.form.RegisterPatientFormBuilder;
 import org.openmrs.module.registrationapp.model.NavigableFormStructure;
+import org.openmrs.module.registrationcore.api.RegistrationCoreService;
 import org.openmrs.ui.framework.annotation.BindParams;
 import org.openmrs.ui.framework.annotation.SpringBean;
 import org.openmrs.ui.framework.page.PageModel;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.openmrs.module.extendedpatientrecord.PatientExtended;
+import org.openmrs.module.managehmo.api.HMOService;
+import org.openmrs.module.managehmo.HMO;
+
 
 public class RegisterPatientPageController {
 
@@ -24,6 +29,19 @@ public class RegisterPatientPageController {
                     @SpringBean("emrApiProperties") EmrApiProperties emrApiProperties) throws Exception {
 
         sessionContext.requireAuthentication();
+
+        PatientExtended patientExtended = new PatientExtended();
+        RegistrationCoreService registrationCoreService = Context.getService(RegistrationCoreService.class);
+        HMOService hmoService = Context.getService(HMOService.class);
+
+
+        HMO hmo = new HMO();
+        hmo.getName();
+
+        model.addAttribute("hmos", hmoService.getAllHMOs());
+        model.addAttribute("patientextended", patientExtended);
+
+
         addModelAttributes(model, patient, app, emrApiProperties.getPrimaryIdentifierType());
     }
 
@@ -49,6 +67,7 @@ public class RegisterPatientPageController {
                 app.getConfig().get("patientDashboardLink").getTextValue() : null);
         model.addAttribute("enableOverrideOfAddressPortlet",
                 Context.getAdministrationService().getGlobalProperty("addresshierarchy.enableOverrideOfAddressPortlet", "false"));
-    }
+
+    } //addModelAttributes
 
 }

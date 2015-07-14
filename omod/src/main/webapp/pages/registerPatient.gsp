@@ -15,6 +15,12 @@
     def genderOptions = [ [label: ui.message("emr.gender.M"), value: 'M'],
                           [label: ui.message("emr.gender.F"), value: 'F'] ]
 
+    // ===========================
+    def allHMOs = []
+    /*hmos.each {hmo->
+        allHMOs = [label: hmo.name, value: hmo.id]
+    }*/
+
     def cleanup = {
         return (it instanceof org.codehaus.jackson.node.TextNode) ? it.textValue : it;
     }
@@ -31,7 +37,6 @@ ${ ui.includeFragment("uicommons", "validationMessages")}
 
 
 <script type="text/javascript">
-
     var breadcrumbs = [
         { icon: "icon-home", link: '/' + OPENMRS_CONTEXT_PATH + '/index.htm' },
         { label: "${ ui.message("registrationapp.registration.label") }", link: "${ ui.pageLink("registrationapp", "registerPatient") }" }
@@ -47,8 +52,8 @@ ${ ui.includeFragment("uicommons", "validationMessages")}
             def section = structure.value;  %>
             sections.push('${section.id}');
     <% } %>
-
 </script>
+
 
 <div id="reviewSimilarPatients" class="dialog" style="display: none">
     <div class="dialog-header">
@@ -199,6 +204,7 @@ ${ ui.includeFragment("uicommons", "validationMessages")}
                         </fieldset>
                     <% } %>
 
+
                     <!-- allow customization of additional question in the patient identification section, if it is included -->
                     <% if (section.id == 'patient-identification-section') {
                         identifierSectionFound = true; %>
@@ -212,6 +218,7 @@ ${ ui.includeFragment("uicommons", "validationMessages")}
                     <% questions.each { question ->
                         def fields=question.fields
                     %>
+
                         <fieldset
                             <% if(question.legend == "Person.address"){ %> class="requireOne"<% } %>
                                 <% if (question.fieldSeparator) { %> field-separator="${question.fieldSeparator}" <% } %>
@@ -225,6 +232,69 @@ ${ ui.includeFragment("uicommons", "validationMessages")}
                                     <h3>${ui.message(question.header)}</h3>
 
                             <% } %>
+
+                            <!-- *************************************************CUSTOM SECTIONS/FIELDS ********************************************** -->
+                            <% if(question.id == "addhmo"){ %>
+                            ${ ui.includeFragment("uicommons", "field/dropDown", [
+                                    id: "hmo",
+                                    formFieldName: "hmo",
+                                    options: allHMOs,
+                                    initialValue: "Select HMO",
+                                    hideEmptyLabel: true,
+                                    expanded: true
+                            ])}
+                            <% } %>
+                            <!-- Insurance Scheme *************************** -->
+                            <% if(question.id == "addinsurance"){ %>
+                            ${ ui.includeFragment("uicommons", "field/dropDown", [
+                                    id: "insurance",
+                                    formFieldName: "insurance",
+                                    options: allHMOs,
+                                    initialValue: "Choose Insurance Scheme",
+                                    hideEmptyLabel: true,
+                                    expanded: true
+                            ])}
+
+                            <% } %>
+
+                            <!-- ************************ Next of Kin Details *********************** -->
+                            <% if(question.id == "addnextofkin"){ %>
+
+                            ${ui.includeFragment("uicommons", "field/text", [
+                                        id: "nextOfKinFirstname",
+                                        formFieldName: "nextOfKinFirstname",
+                                        label: "Firstname"
+                                ])}
+                            ${ ui.includeFragment("uicommons", "field/text", [
+                                    id: "nextOfKinLastname",
+                                    formFieldName: "nextOfKinLastname",
+                                    label: "Lastname"
+                            ])}
+                            ${ ui.includeFragment("uicommons", "field/text", [
+                                    id: "nextOfKinAddress",
+                                    formFieldName: "nextOfKinAddress",
+                                    label: "Address",
+                                    size: 50
+                            ])}
+                            ${ ui.includeFragment("uicommons", "field/text", [
+                                    id: "nextOfKinPhoneNo",
+                                    formFieldName: "nextOfKinPhoneNo",
+                                    label: "Phone Number"
+                            ])}
+                            ${ ui.includeFragment("uicommons", "field/text", [
+                                    id: "nextOfKinEmail",
+                                    formFieldName: "nextOfKinEmail",
+                                    label: "Email"
+                            ])}
+                            ${ ui.includeFragment("uicommons", "field/text", [
+                                    id: "nextOfKinRelationship",
+                                    formFieldName: "nextOfKinRelationship",
+                                    label: "Relationship"
+                            ])}
+
+
+                            <% } %><!-- end of next of kin -->
+
 
                             <% fields.each { field ->
                                 def configOptions = [
