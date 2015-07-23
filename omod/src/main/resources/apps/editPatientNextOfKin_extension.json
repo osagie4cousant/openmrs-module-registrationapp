@@ -1,0 +1,10 @@
+[
+{
+"id": "${project.parent.groupId}.${project.parent.artifactId}.nextofkin",
+"extensionPointId": "patientHeader.editPatientDemographics",
+"type": "link",
+"label": "Next of Kin",
+"url": "registrationapp/editSection.page?patientId={{patient.patientId}}&sectionId=nextofkin&appId=referenceapplication.registrationapp.registerPatient"
+
+}
+]

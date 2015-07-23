@@ -34,6 +34,14 @@
         returnUrl = "/${contextPath}/coreapps/patientdashboard/patientDashboard.page?patientId=${patient.patientId}"
     }
 
+    // ===========================
+    def allHMOs = []
+    allHMOs.push([label:"", value:""])
+    hmos.each {hmo->
+        allHMOs.push([label: hmo.name, value: hmo.id])
+    }
+
+
     def cleanup = {
         return (it instanceof org.codehaus.jackson.node.TextNode) ? it.textValue : it;
     }
@@ -144,6 +152,75 @@ ${ ui.includeFragment("uicommons", "validationMessages")}
                     <% if (question.displayTemplate) { %> display-template="${ui.escapeAttribute(question.displayTemplate)}" <% } %>
                 >
                     <legend>${ ui.message(question.legend)}</legend>
+
+
+
+        <!-- *************************************************CUSTOM SECTIONS/FIELDS ********************************************** -->
+        <% if(question.id == "addhmo"){ %>
+        ${ ui.includeFragment("uicommons", "field/dropDown", [
+                id: "hmo",
+                formFieldName: "hmo",
+                options: allHMOs,
+                initialValue: patientextended.hmo,
+                hideEmptyLabel: true,
+                expanded: false
+        ])}
+        <%}%>
+
+
+        <!-- ************************ Next of Kin Details *********************** -->
+        <% if(question.id == "addnextofkin"){ %>
+
+        ${ui.includeFragment("uicommons", "field/text", [
+                id: "nextOfKinFirstname",
+                formFieldName: "nextOfKinFirstname",
+                value: patientextended.nextOfKinFirstname,
+                initialValue: patientextended.nextOfKinFirstname,
+                label: "Firstname"
+
+        ])}
+        ${ ui.includeFragment("uicommons", "field/text", [
+                id: "nextOfKinLastname",
+                formFieldName: "nextOfKinLastname",
+                value: patientextended.nextOfKinLastname,
+                initialValue: patientextended.nextOfKinLastname,
+                label: "Lastname"
+        ])}
+        ${ ui.includeFragment("uicommons", "field/text", [
+                id: "nextOfKinAddress",
+                formFieldName: "nextOfKinAddress",
+                label: "Address",
+                value: patientextended.nextOfKinAddress,
+                initialValue: patientextended.nextOfKinAddress,
+                size: 50
+        ])}
+        ${ ui.includeFragment("uicommons", "field/text", [
+                id: "nextOfKinPhoneNo",
+                formFieldName: "nextOfKinPhoneNo",
+                value: patientextended.nextOfKinPhoneNo,
+                initialValue: patientextended.nextOfKinPhoneNo,
+                label: "Phone Number"
+        ])}
+        ${ ui.includeFragment("uicommons", "field/text", [
+                id: "nextOfKinEmail",
+                formFieldName: "nextOfKinEmail",
+                value: patientextended.nextOfKinEmail,
+                initialValue: patientextended.nextOfKinEmail,
+                label: "Email"
+        ])}
+        ${ ui.includeFragment("uicommons", "field/text", [
+                id: "nextOfKinRelationship",
+                formFieldName: "nextOfKinRelationship",
+                value: patientextended.nextOfKinRelationship,
+                initialValue: patientextended.nextOfKinRelationship,
+                label: "Relationship"
+        ])}
+
+
+        <% } %><!-- end of next of kin -->
+
+
+
                     <% fields.each { field ->
                         def configOptions = [
                                 label:ui.message(field.label),

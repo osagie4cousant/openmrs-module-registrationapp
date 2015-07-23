@@ -17,9 +17,15 @@
 
     // ===========================
     def allHMOs = []
-    /*hmos.each {hmo->
-        allHMOs = [label: hmo.name, value: hmo.id]
-    }*/
+    allHMOs.push([label:"", value:""])
+    hmos.each {hmo->
+        allHMOs.push([label: hmo.name, value: hmo.id])
+    }
+    def allInsSchemes = []
+    allInsSchemes.push([label:"", value:""])
+    insuranceSchemes.each {insurance->
+        allInsSchemes.push([label: insurance.name, value: insurance.id])
+    }
 
     def cleanup = {
         return (it instanceof org.codehaus.jackson.node.TextNode) ? it.textValue : it;
@@ -235,24 +241,25 @@ ${ ui.includeFragment("uicommons", "validationMessages")}
 
                             <!-- *************************************************CUSTOM SECTIONS/FIELDS ********************************************** -->
                             <% if(question.id == "addhmo"){ %>
-                            ${ ui.includeFragment("uicommons", "field/dropDown", [
-                                    id: "hmo",
-                                    formFieldName: "hmo",
-                                    options: allHMOs,
-                                    initialValue: "Select HMO",
-                                    hideEmptyLabel: true,
-                                    expanded: true
-                            ])}
-                            <% } %>
+                                ${ ui.includeFragment("uicommons", "field/dropDown", [
+                                        id: "hmo",
+                                        formFieldName: "hmo",
+                                        options: allHMOs,
+                                        initialValue: patientextended.hmo,
+                                        hideEmptyLabel: true,
+                                        expanded: false
+                                ])}
+                            <%}%>
+
                             <!-- Insurance Scheme *************************** -->
                             <% if(question.id == "addinsurance"){ %>
                             ${ ui.includeFragment("uicommons", "field/dropDown", [
-                                    id: "insurance",
-                                    formFieldName: "insurance",
-                                    options: allHMOs,
-                                    initialValue: "Choose Insurance Scheme",
+                                    id: "insuranceScheme",
+                                    formFieldName: "insuranceScheme",
+                                    options: allInsSchemes,
+                                    initialValue: patientextended.insuranceScheme,
                                     hideEmptyLabel: true,
-                                    expanded: true
+                                    expanded: false
                             ])}
 
                             <% } %>
@@ -263,32 +270,39 @@ ${ ui.includeFragment("uicommons", "validationMessages")}
                             ${ui.includeFragment("uicommons", "field/text", [
                                         id: "nextOfKinFirstname",
                                         formFieldName: "nextOfKinFirstname",
+                                        value: patientextended.nextOfKinFirstname,
                                         label: "Firstname"
+
                                 ])}
                             ${ ui.includeFragment("uicommons", "field/text", [
                                     id: "nextOfKinLastname",
                                     formFieldName: "nextOfKinLastname",
+                                    value: patientextended.nextOfKinLastname,
                                     label: "Lastname"
                             ])}
                             ${ ui.includeFragment("uicommons", "field/text", [
                                     id: "nextOfKinAddress",
                                     formFieldName: "nextOfKinAddress",
                                     label: "Address",
+                                    value: patientextended.nextOfKinAddress,
                                     size: 50
                             ])}
                             ${ ui.includeFragment("uicommons", "field/text", [
                                     id: "nextOfKinPhoneNo",
                                     formFieldName: "nextOfKinPhoneNo",
+                                    value: patientextended.nextOfKinPhoneNo,
                                     label: "Phone Number"
                             ])}
                             ${ ui.includeFragment("uicommons", "field/text", [
                                     id: "nextOfKinEmail",
                                     formFieldName: "nextOfKinEmail",
+                                    value: patientextended.nextOfKinEmail,
                                     label: "Email"
                             ])}
                             ${ ui.includeFragment("uicommons", "field/text", [
                                     id: "nextOfKinRelationship",
                                     formFieldName: "nextOfKinRelationship",
+                                    value: patientextended.nextOfKinRelationship,
                                     label: "Relationship"
                             ])}
 

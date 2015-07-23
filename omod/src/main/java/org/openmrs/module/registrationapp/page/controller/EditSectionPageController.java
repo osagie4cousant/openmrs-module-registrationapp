@@ -8,6 +8,7 @@ import org.openmrs.PersonAddress;
 import org.openmrs.PersonName;
 import org.openmrs.api.AdministrationService;
 import org.openmrs.api.PatientService;
+import org.openmrs.api.context.Context;
 import org.openmrs.layout.web.address.AddressSupport;
 import org.openmrs.layout.web.name.NameSupport;
 import org.openmrs.messagesource.MessageSourceService;
@@ -28,14 +29,22 @@ import org.openmrs.validator.PatientValidator;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.openmrs.module.extendedpatientrecord.PatientExtended;
+import org.openmrs.module.extendedpatientrecord.AdministerList;
+import org.openmrs.module.managehmo.HMO;
+import org.openmrs.module.managehmo.ManageHMOAdminLister;
+
 
 import java.util.Calendar;
+import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 
 public class EditSectionPageController {
 
     protected final Log log = LogFactory.getLog(EditSectionPageController.class);
+    private AdministerList administerList = new AdministerList();
 
     public void get(UiSessionContext sessionContext, PageModel model,
                     @RequestParam("patientId") Patient patient,
@@ -46,8 +55,22 @@ public class EditSectionPageController {
 
         sessionContext.requireAuthentication();
 
+        /* todo - remove log.error test */
+        log.error("Getting required patient Id: = "+patient.getId());
+        PatientExtended patientExtended = administerList.getPatientExtended(patient.getId()); //
+
+
+
+
+
+
+        if (patientExtended == null) patientExtended = new PatientExtended(); // If no extended record exist for this patient...
+
+        patientExtended.setId(patient.getId());
+
+
         NavigableFormStructure formStructure = RegisterPatientFormBuilder.buildFormStructure(app);
-        addModelAttributes(model, patient, formStructure.getSections().get(sectionId), administrationService, returnUrl,
+        addModelAttributes(model, patient, patientExtended, formStructure.getSections().get(sectionId), administrationService, returnUrl,
                 app);
     }
 
@@ -58,6 +81,7 @@ public class EditSectionPageController {
      */
     public String post(UiSessionContext sessionContext, PageModel model,
                        @RequestParam("patientId") @BindParams Patient patient,
+                       @ModelAttribute("patientextended") @BindParams PatientExtended patientExtended,
                        @BindParams PersonAddress address,
                        @BindParams PersonName name,
                        @RequestParam(value="birthdateYears", required = false) Integer birthdateYears,
@@ -71,6 +95,13 @@ public class EditSectionPageController {
                        @SpringBean("patientValidator") PatientValidator patientValidator, UiUtils ui) throws Exception {
 
         sessionContext.requireAuthentication();
+
+
+        /* todo delete/remove log.error */
+        log.error("Saving/updating new patient extended record: ");
+        log.error(patientExtended.getHmo()+ " - HmO");
+
+
 
         // handle person name, if present
         if (patient.getPersonName() != null && name != null && StringUtils.isNotBlank(name.getFullName())) {  // bit of a hack because it seems that in this case name is never null, so we
@@ -121,8 +152,26 @@ public class EditSectionPageController {
 
         if (!errors.hasErrors()) {
             try {
+
                 //The person address changes get saved along as with the call to save patient
                 patientService.savePatient(patient);
+
+                if (patientExtended.getInsuranceScheme() == null || patientExtended.getInsuranceScheme().length() <=0){
+                    patientExtended.setPatientType("registrationapp.patienttype.facilitylabel");
+                }else{
+                    patientExtended.setPatientType("registrationapp.patienttype.hmolabel"); }
+
+                patientExtended.setId(patient.getId()); // set patient id for patient extended record...
+                if (administerList.getPatientExtended(patient.getId()) == null){ // save if patient does not exit in the patient extended record...
+                    PatientExtended savedAdminList = administerList.savePatientExtended(patientExtended);
+                }else{ // update if patient record already exist.
+                    PatientExtended savedAdminList = administerList.updatePatientExtended(patientExtended);
+                }
+
+                log.info("Patient record for: \""+patient.getGivenName()+" "+patient.getFamilyName()+"\" successfully edited by "+Context.getAuthenticatedUser().getDisplayString());
+
+
+
                 InfoErrorMessageUtil.flashInfoMessage(request.getSession(),
                         ui.message("registrationapp.editContactInfoMessage.success", patient.getPersonName()));
 
@@ -131,6 +180,7 @@ public class EditSectionPageController {
             catch (Exception e) {
                 log.warn("Error occurred while saving patient's contact info", e);
                 session.setAttribute(UiCommonsConstants.SESSION_ATTRIBUTE_ERROR_MESSAGE, "registrationapp.save.fail");
+
             }
 
         } else {
@@ -147,21 +197,32 @@ public class EditSectionPageController {
             session.setAttribute(UiCommonsConstants.SESSION_ATTRIBUTE_ERROR_MESSAGE, errorMessage.toString());
         }
 
-        addModelAttributes(model, patient, formStructure.getSections().get(sectionId), administrationService, returnUrl,
+        addModelAttributes(model, patient, patientExtended,  formStructure.getSections().get(sectionId), administrationService, returnUrl,
                 app);
         //redisplay the form
         return null;
     }
 
 
-    private void addModelAttributes(PageModel model, Patient patient, Section section,
+    private void addModelAttributes(PageModel model, Patient patient, PatientExtended patientExtended, Section section,
                                     AdministrationService adminService, String returnUrl,
                                     AppDescriptor app) throws Exception {
+
+
+        // add hmo record...
+        ManageHMOAdminLister adminLister = new ManageHMOAdminLister();
+        List<HMO> allHMOs  = adminLister.getAllHMOs();
+
+
+
+        model.addAttribute("hmos", allHMOs);
+
 
         model.addAttribute("app", app);
         model.addAttribute("returnUrl", returnUrl);
         model.put("uiUtils", new RegistrationAppUiUtils());
         model.addAttribute("patient", patient);
+        model.addAttribute("patientextended", patientExtended);
         model.addAttribute("addressTemplate", AddressSupport.getInstance().getAddressTemplate().get(0));
         model.addAttribute("nameTemplate", NameSupport.getInstance().getDefaultLayoutTemplate());
         model.addAttribute("section", section);

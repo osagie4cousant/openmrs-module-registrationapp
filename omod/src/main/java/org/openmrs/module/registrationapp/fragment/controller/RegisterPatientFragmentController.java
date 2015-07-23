@@ -15,12 +15,7 @@ import org.openmrs.Patient;
 import org.openmrs.PersonAddress;
 import org.openmrs.PersonAttribute;
 import org.openmrs.PersonName;
-import org.openmrs.api.ConceptService;
-import org.openmrs.api.DuplicateIdentifierException;
-import org.openmrs.api.EncounterService;
-import org.openmrs.api.InvalidCheckDigitException;
-import org.openmrs.api.ObsService;
-import org.openmrs.api.PatientIdentifierException;
+import org.openmrs.api.*;
 import org.openmrs.api.context.Context;
 import org.openmrs.messagesource.MessageSourceService;
 import org.openmrs.module.appframework.domain.AppDescriptor;
@@ -48,7 +43,7 @@ import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.openmrs.module.extendedpatientrecord.PatientExtended;
-import org.openmrs.module.extendedpatientrecord.api.PatientExtendedService;
+import org.openmrs.module.extendedpatientrecord.AdministerList;
 
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -95,6 +90,7 @@ public class RegisterPatientFragmentController {
 
     public FragmentActionResult submit(UiSessionContext sessionContext, @RequestParam(value="appId") AppDescriptor app,
                             @SpringBean("registrationCoreService") RegistrationCoreService registrationService,
+                                       @ModelAttribute("patientextended") @BindParams PatientExtended patientExtended,
                             @ModelAttribute("patient") @BindParams Patient patient,
                             @ModelAttribute("personName") @BindParams PersonName name,
                             @ModelAttribute("personAddress") @BindParams PersonAddress address,
@@ -114,6 +110,8 @@ public class RegisterPatientFragmentController {
 
         NavigableFormStructure formStructure = RegisterPatientFormBuilder.buildFormStructure(app);
 
+
+
         if (unknown != null && unknown) {
             // TODO make "UNKNOWN" be configurable
             name.setFamilyName("UNKNOWN");
@@ -123,6 +121,11 @@ public class RegisterPatientFragmentController {
 
         patient.addName(name);
         patient.addAddress(address);
+
+        log.error("Patient extended details: ");
+        log.error(patientExtended.getHmo());
+        log.error(patientExtended.getInsuranceScheme());
+        log.error(patientExtended.getNextOfKinFirstname());
 
         if (patient.getBirthdate() == null && birthdateYears != null) {
             patient.setBirthdateEstimated(true);
@@ -149,11 +152,38 @@ public class RegisterPatientFragmentController {
         try {
             // if patientIdentifier is blank, the underlying registerPatient method should automatically generate one
             patient = registrationService.registerPatient(patient, null, patientIdentifier, sessionContext.getSessionLocation());
-            PatientExtended patientExtended = new PatientExtended();
-            patientExtended.setPatientId(patient.getId().toString());
+            patientExtended.setId(patient.getId());
+
+            /* TODO  remove error logs */
+
+            log.error("Next of kin last name "+patientExtended.getNextOfKinLastname());
+            log.error("HMO " +patientExtended.getHmo());
+            log.error("Relationship: "+patientExtended.getNextOfKinRelationship());
+
+
+
+            AdministerList administerList = new AdministerList();
+
+            if (patientExtended.getInsuranceScheme() == null || patientExtended.getInsuranceScheme().length() <=0){
+                patientExtended.setPatientType("registrationapp.patienttype.facilitylabel");
+            }else{
+                patientExtended.setPatientType("registrationapp.patienttype.hmolabel");
+            }
+            PatientExtended pExtendedSaved = administerList.savePatientExtended(patientExtended);
+            log.error("After SAVE: Patient Extended Saved Id  = "+pExtendedSaved.getId());
+            log.error("Next of kin last name "+pExtendedSaved.getNextOfKinLastname());
+            log.error("HMO " +pExtendedSaved.getHmo());
+            log.error("Relationship: "+pExtendedSaved.getNextOfKinRelationship());
+            log.error("Next of Kin Tel: "+pExtendedSaved.getNextOfKinPhoneNo());
+            log.error("Next of Kin Address: "+pExtendedSaved.getNextOfKinAddress());
+            log.error("Next of Kin Firstname: "+pExtendedSaved.getNextOfKinFirstname());
+            log.error("Patient Type: "+pExtendedSaved.getPatientType());
+            log.info("New patient with id: "+patient.getId()+ " successfully saved by: "+Context.getAuthenticatedUser().getDisplayString());
+
         }
         catch (Exception ex) {
 
+            log.error(ex);
             // TODO I remember getting into trouble if i called this validator before the above save method.
             // TODO Am therefore putting this here for: https://tickets.openmrs.org/browse/RA-232
             patientValidator.validate(patient, errors);
@@ -162,6 +192,10 @@ public class RegisterPatientFragmentController {
             if (!errors.hasErrors()) {
                 errors.reject(ex.getMessage());
             }
+            /* delete patient from record if an error exist saving any part of patient record... */
+            PatientService patientService = Context.getPatientService();
+            patientService.voidPatient(patient, "Error on registration - Patient not fully registered!");
+
             return new FailureResult(createErrorMessage(errors, messageSourceService));
         }
 
