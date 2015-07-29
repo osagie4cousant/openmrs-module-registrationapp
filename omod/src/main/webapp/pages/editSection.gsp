@@ -169,7 +169,7 @@ ${ ui.includeFragment("uicommons", "validationMessages")}
 
 
         <!-- ************************ Next of Kin Details *********************** -->
-        <% if(question.id == "addnextofkin"){ %>
+        <% if(question.id == "namesquestion"){ %>
 
         ${ui.includeFragment("uicommons", "field/text", [
                 id: "nextOfKinFirstname",
@@ -186,6 +186,9 @@ ${ ui.includeFragment("uicommons", "validationMessages")}
                 initialValue: patientextended.nextOfKinLastname,
                 label: "Lastname"
         ])}
+        <% } %>
+
+        <% if(question.id == "contactquestion"){ %>
         ${ ui.includeFragment("uicommons", "field/text", [
                 id: "nextOfKinAddress",
                 formFieldName: "nextOfKinAddress",
@@ -208,6 +211,9 @@ ${ ui.includeFragment("uicommons", "validationMessages")}
                 initialValue: patientextended.nextOfKinEmail,
                 label: "Email"
         ])}
+        <% } %>
+
+        <% if(question.id == "relationshipquestion"){ %>
         ${ ui.includeFragment("uicommons", "field/text", [
                 id: "nextOfKinRelationship",
                 formFieldName: "nextOfKinRelationship",
@@ -215,7 +221,6 @@ ${ ui.includeFragment("uicommons", "validationMessages")}
                 initialValue: patientextended.nextOfKinRelationship,
                 label: "Relationship"
         ])}
-
 
         <% } %><!-- end of next of kin -->
 

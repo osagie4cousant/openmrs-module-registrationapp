@@ -156,28 +156,20 @@ public class RegisterPatientFragmentController {
 
             /* TODO  remove error logs */
 
-            log.error("Next of kin last name "+patientExtended.getNextOfKinLastname());
-            log.error("HMO " +patientExtended.getHmo());
-            log.error("Relationship: "+patientExtended.getNextOfKinRelationship());
-
-
-
             AdministerList administerList = new AdministerList();
 
-            if (patientExtended.getInsuranceScheme() == null || patientExtended.getInsuranceScheme().length() <=0){
-                patientExtended.setPatientType("registrationapp.patienttype.facilitylabel");
+            if (patientExtended.getHmo() == null || patientExtended.getHmo() <=0){
+                patientExtended.setPatientType("Facility Patient");
             }else{
-                patientExtended.setPatientType("registrationapp.patienttype.hmolabel");
+                patientExtended.setPatientType("HMO Patient");
             }
             PatientExtended pExtendedSaved = administerList.savePatientExtended(patientExtended);
-            log.error("After SAVE: Patient Extended Saved Id  = "+pExtendedSaved.getId());
-            log.error("Next of kin last name "+pExtendedSaved.getNextOfKinLastname());
-            log.error("HMO " +pExtendedSaved.getHmo());
-            log.error("Relationship: "+pExtendedSaved.getNextOfKinRelationship());
-            log.error("Next of Kin Tel: "+pExtendedSaved.getNextOfKinPhoneNo());
-            log.error("Next of Kin Address: "+pExtendedSaved.getNextOfKinAddress());
-            log.error("Next of Kin Firstname: "+pExtendedSaved.getNextOfKinFirstname());
-            log.error("Patient Type: "+pExtendedSaved.getPatientType());
+
+            log.error("RETURNED FROM SAVED...");
+            log.error("Next of Kin Names: "+pExtendedSaved.getNextOfKinFirstname() + " "+pExtendedSaved.getNextOfKinLastname());
+            log.error("Next of Kin Email:"+pExtendedSaved.getNextOfKinEmail());
+            log.error("HMO: "+pExtendedSaved.getHmo());
+
             log.info("New patient with id: "+patient.getId()+ " successfully saved by: "+Context.getAuthenticatedUser().getDisplayString());
 
         }

@@ -21,11 +21,7 @@
     hmos.each {hmo->
         allHMOs.push([label: hmo.name, value: hmo.id])
     }
-    def allInsSchemes = []
-    allInsSchemes.push([label:"", value:""])
-    insuranceSchemes.each {insurance->
-        allInsSchemes.push([label: insurance.name, value: insurance.id])
-    }
+    
 
     def cleanup = {
         return (it instanceof org.codehaus.jackson.node.TextNode) ? it.textValue : it;
@@ -265,7 +261,7 @@ ${ ui.includeFragment("uicommons", "validationMessages")}
                             <% } %>
 
                             <!-- ************************ Next of Kin Details *********************** -->
-                            <% if(question.id == "addnextofkin"){ %>
+                            <% if(question.id == "namesquestion"){ %>
 
                             ${ui.includeFragment("uicommons", "field/text", [
                                         id: "nextOfKinFirstname",
@@ -280,6 +276,9 @@ ${ ui.includeFragment("uicommons", "validationMessages")}
                                     value: patientextended.nextOfKinLastname,
                                     label: "Lastname"
                             ])}
+                            <% } %>
+
+                            <% if(question.id == "contactquestion"){ %>
                             ${ ui.includeFragment("uicommons", "field/text", [
                                     id: "nextOfKinAddress",
                                     formFieldName: "nextOfKinAddress",
@@ -299,13 +298,15 @@ ${ ui.includeFragment("uicommons", "validationMessages")}
                                     value: patientextended.nextOfKinEmail,
                                     label: "Email"
                             ])}
+                            <% } %>
+
+                            <% if(question.id == "relationshipquestion"){ %>
                             ${ ui.includeFragment("uicommons", "field/text", [
                                     id: "nextOfKinRelationship",
                                     formFieldName: "nextOfKinRelationship",
                                     value: patientextended.nextOfKinRelationship,
                                     label: "Relationship"
                             ])}
-
 
                             <% } %><!-- end of next of kin -->
 

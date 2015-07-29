@@ -23,7 +23,6 @@
         <require_module version="${registrationcoreVersion}">org.openmrs.module.registrationcore</require_module>
         <require_module version="${reportingModuleVersion}">org.openmrs.module.reporting</require_module>
 		<require_module version="1.0">org.openmrs.module.extendedpatientrecord</require_module>
-		<require_module version="1.0-SNAPSHOT">org.openmrs.module.managedbrecord</require_module>
 		<require_module version="1.0-SNAPSHOT">org.openmrs.module.managehmo</require_module>
     </require_modules>
 

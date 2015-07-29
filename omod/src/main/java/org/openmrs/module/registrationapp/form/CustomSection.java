@@ -44,7 +44,7 @@ public class CustomSection {
         hmoSection.setId("insurance");
         hmoSection.setLabel("Insurance Details");
         hmoSection.addQuestion(q);
-        hmoSection.addQuestion(insuranceQuestion);
+        //hmoSection.addQuestion(insuranceQuestion); insurance scheme section removed...
 
         return hmoSection;
     }//hMOSection
@@ -56,51 +56,31 @@ public class CustomSection {
      */
     public Section createNextOfKinSection(){
         Section nOK = new Section();
-        Question q = new Question();
-        q.setId("addnextofkin");
-        q.setHeader("Patient's Next of Kin Details");
-        q.setLegend("Patient's Next of Kin");
+        Question qNames = new Question();
+        Question qContact = new Question();
+        Question qRelationship = new Question();
+
+        qNames.setId("namesquestion");
+        qNames.setHeader("Names");
+        qNames.setLegend("Next of Kin's Names");
+
+        qContact.setId("contactquestion");
+        qContact.setLegend("Contact");
+        qContact.setHeader("Patient Next of Kin's Address");
+
+        qRelationship.setId("relationshipquestion");
+        qRelationship.setLegend("Relationship");
+        qRelationship.setHeader("Next of Kin's Relationship With Patient");
 
         nOK.setId("nextofkin");
         nOK.setLabel("Next Of Kin");
-        nOK.addQuestion(q);
+        nOK.addQuestion(qNames);
+        nOK.addQuestion(qContact);
+        nOK.addQuestion(qRelationship);
 
         return nOK;
     }//createNextOfKinSection
 
 
-    /**
-     *
-     * @param formfieldName
-     * @param label
-     * @param widget
-     * @return
 
-    private Field makeField(String formfieldName, String label, ObjectNode widget){
-
-        //FragmentRequest fragmentRequest = new FragmentRequest();
-        Field field = new Field();
-        field.setFormFieldName(formfieldName);
-        field.setLabel(label);
-        field.setWidget(widget);
-        //field.setFragmentRequest();
-
-
-        log.error("New Field created: "+field.getLabel());
-        return field;
-    }//makeField*/
-
-    /**
-     * @param providername
-     * @param fragmentId
-     * @return
-     *
-    private ObjectNode makeWidget(String providername, String fragmentId){
-        ObjectNode widget = JsonNodeFactory.instance.objectNode();
-        log.error("New widget created! "+widget);
-        widget.put("providerName", providername);
-        widget.put("fragmentId", fragmentId);
-
-        return widget;
-    }//makeWidget */
 }

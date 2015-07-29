@@ -64,9 +64,14 @@ public class EditSectionPageController {
 
 
 
-        if (patientExtended == null) patientExtended = new PatientExtended(); // If no extended record exist for this patient...
+        if (patientExtended == null) {
+            patientExtended = new PatientExtended(); // If no extended record exist for this patient...
+            log.error("No record for this patient extended!");
+        }else {
+            patientExtended.setId(patient.getId());
+            log.error("Record exist for patient extended.");
+        }
 
-        patientExtended.setId(patient.getId());
 
 
         NavigableFormStructure formStructure = RegisterPatientFormBuilder.buildFormStructure(app);
@@ -99,8 +104,6 @@ public class EditSectionPageController {
 
         /* todo delete/remove log.error */
         log.error("Saving/updating new patient extended record: ");
-        log.error(patientExtended.getHmo()+ " - HmO");
-
 
 
         // handle person name, if present
@@ -156,17 +159,44 @@ public class EditSectionPageController {
                 //The person address changes get saved along as with the call to save patient
                 patientService.savePatient(patient);
 
-                if (patientExtended.getInsuranceScheme() == null || patientExtended.getInsuranceScheme().length() <=0){
-                    patientExtended.setPatientType("registrationapp.patienttype.facilitylabel");
+                if (patientExtended.getHmo() == null || patientExtended.getHmo() <=0){
+                    patientExtended.setPatientType("Facility Patient");
                 }else{
-                    patientExtended.setPatientType("registrationapp.patienttype.hmolabel"); }
+                    patientExtended.setPatientType("HMO Patient"); }
 
-                patientExtended.setId(patient.getId()); // set patient id for patient extended record...
-                if (administerList.getPatientExtended(patient.getId()) == null){ // save if patient does not exit in the patient extended record...
+
+                log.error("Gotten HMO: "+patientExtended.getHmo());
+                log.error("Gotten Next of Kin Firstname: "+ patientExtended.getNextOfKinFirstname());
+                log.error("Gotten Next of Kin Address: "+patientExtended.getNextOfKinAddress());
+
+                /* ---------- get existing patient record, modify fields, and save ----------- */
+                PatientExtended reqPatientExtended = administerList.getPatientExtended(patient.getId());
+
+                if (reqPatientExtended != null){
+                    reqPatientExtended.setPatientType(patientExtended.getPatientType());
+                    if (patientExtended.getHmo() != null)reqPatientExtended.setHmo(patientExtended.getHmo());
+                    if (patientExtended.getNextOfKinFirstname() != null) reqPatientExtended.setNextOfKinFirstname(patientExtended.getNextOfKinFirstname());
+                    if (patientExtended.getNextOfKinAddress() != null) reqPatientExtended.setNextOfKinAddress(patientExtended.getNextOfKinAddress());
+                    if (patientExtended.getNextOfKinEmail() != null) reqPatientExtended.setNextOfKinEmail(patientExtended.getNextOfKinEmail());
+                    if (patientExtended.getNextOfKinLastname() !=null)reqPatientExtended.setNextOfKinLastname(patientExtended.getNextOfKinLastname());
+                    if (patientExtended.getNextOfKinPhoneNo() !=null) reqPatientExtended.setNextOfKinPhoneNo(patientExtended.getNextOfKinPhoneNo());
+                    if (patientExtended.getNextOfKinRelationship() !=null)reqPatientExtended.setNextOfKinRelationship(patientExtended.getNextOfKinRelationship());
+
+                    administerList.updatePatientExtended(reqPatientExtended);// update record
+                }else{
+                    patientExtended.setId(patient.getId());
+                    administerList.savePatientExtended(patientExtended); // save record
+                }
+
+
+                //patientExtended.setId(patient.getId()); // set patient id for patient extended record...
+                /*if (administerList.getPatientExtended(patient.getId()) == null){ // save if patient does not exit in the patient extended record...
                     PatientExtended savedAdminList = administerList.savePatientExtended(patientExtended);
                 }else{ // update if patient record already exist.
                     PatientExtended savedAdminList = administerList.updatePatientExtended(patientExtended);
-                }
+                }*/
+
+
 
                 log.info("Patient record for: \""+patient.getGivenName()+" "+patient.getFamilyName()+"\" successfully edited by "+Context.getAuthenticatedUser().getDisplayString());
 
